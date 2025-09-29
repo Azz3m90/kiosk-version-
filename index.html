@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Kiosk - Order System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <img src="assets/logo.svg" alt="Restaurant Logo" class="logo">
+            <h1 class="restaurant-name">Delicious Bites</h1>
+        </div>
+        <div class="cart-summary">
+            <button class="cart-btn" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
+                <span class="cart-total">$0.00</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Left Sidebar with Logo and Navigation -->
+        <div class="left-sidebar">
+            <div class="sidebar-logo-section">
+                <img src="assets/logo.svg" alt="Restaurant Logo" class="sidebar-logo">
+                <h2 class="sidebar-restaurant-name">Delicious Bites</h2>
+            </div>
+            <!-- Navigation Steps -->
+            <div class="wizard-nav">
+                <div class="step active" data-step="food">
+                    <i class="fas fa-utensils"></i>
+                    <span>Food</span>
+                </div>
+                <div class="step" data-step="drinks">
+                    <i class="fas fa-coffee"></i>
+                    <span>Drinks</span>
+                </div>
+                <div class="step" data-step="review">
+                    <i class="fas fa-receipt"></i>
+                    <span>Review</span>
+                </div>
+                <div class="step" data-step="payment">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Payment</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+
+        <!-- Food Section -->
+        <div class="section active" id="food-section">
+            <h2 class="section-title">Choose Your Food</h2>
+            <div class="categories">
+                <button class="category-btn active" data-category="all">All Items</button>
+                <button class="category-btn" data-category="appetizers">Appetizers</button>
+                <button class="category-btn" data-category="mains">Main Courses</button>
+                <button class="category-btn" data-category="desserts">Desserts</button>
+            </div>
+            <div class="menu-grid" id="food-grid">
+                <!-- Food items will be populated here -->
+            </div>
+            <div class="navigation-buttons">
+                <button class="nav-btn next-btn" onclick="nextStep('drinks')">
+                    Next: Drinks <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Drinks Section -->
+        <div class="section" id="drinks-section">
+            <h2 class="section-title">Choose Your Drinks</h2>
+            <div class="categories">
+                <button class="category-btn active" data-category="all">All Drinks</button>
+                <button class="category-btn" data-category="hot">Hot Drinks</button>
+                <button class="category-btn" data-category="cold">Cold Drinks</button>
+                <button class="category-btn" data-category="alcoholic">Alcoholic</button>
+            </div>
+            <div class="menu-grid" id="drinks-grid">
+                <!-- Drink items will be populated here -->
+            </div>
+            <div class="navigation-buttons">
+                <button class="nav-btn prev-btn" onclick="prevStep('food')">
+                    <i class="fas fa-arrow-left"></i> Back: Food
+                </button>
+                <button class="nav-btn next-btn" onclick="nextStep('review')">
+                    Next: Review Order <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Review Section -->
+        <div class="section" id="review-section">
+            <h2 class="section-title">Review Your Order</h2>
+            <div class="order-review">
+                <div class="order-items" id="order-items">
+                    <!-- Order items will be populated here -->
+                </div>
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (8.5%):</span>
+                        <span id="tax">$0.00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="navigation-buttons">
+                <button class="nav-btn prev-btn" onclick="prevStep('drinks')">
+                    <i class="fas fa-arrow-left"></i> Back: Drinks
+                </button>
+                <button class="nav-btn next-btn" onclick="nextStep('payment')" id="proceed-payment">
+                    Proceed to Payment <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="section" id="payment-section">
+            <h2 class="section-title">Payment</h2>
+            <div class="payment-container">
+                <div class="payment-methods">
+                    <h3>Select Payment Method</h3>
+                    <div class="payment-options">
+                        <button class="payment-option active" data-method="card">
+                            <i class="fas fa-credit-card"></i>
+                            Credit/Debit Card
+                        </button>
+                        <button class="payment-option" data-method="cash">
+                            <i class="fas fa-money-bill"></i>
+                            Cash
+                        </button>
+                        <button class="payment-option" data-method="digital">
+                            <i class="fas fa-mobile-alt"></i>
+                            Digital Wallet
+                        </button>
+                    </div>
+                </div>
+                <div class="payment-form" id="card-form">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="text" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" placeholder="123" maxlength="4">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Cardholder Name</label>
+                        <input type="text" placeholder="John Doe">
+                    </div>
+                </div>
+                <div class="order-total-display">
+                    <h3>Order Total: <span id="payment-total">$0.00</span></h3>
+                </div>
+            </div>
+            <div class="navigation-buttons">
+                <button class="nav-btn prev-btn" onclick="prevStep('review')">
+                    <i class="fas fa-arrow-left"></i> Back: Review
+                </button>
+                <button class="nav-btn complete-btn" onclick="completeOrder()">
+                    <i class="fas fa-check"></i> Complete Order
+                </button>
+            </div>
+        </div>
+        </div> <!-- End content-area -->
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Your Order</h3>
+            <button class="close-cart" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <!-- Cart items will be populated here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                Total: $<span id="sidebar-total">0.00</span>
+            </div>
+            <button class="clear-cart-btn" onclick="clearCart()">
+                Clear Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
