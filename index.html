@@ -213,6 +213,29 @@
     <!-- Overlay -->
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
 
+    <!-- Alert Modal -->
+    <div class="alert-modal" id="alertModal">
+        <div class="alert-modal-content">
+            <div class="alert-modal-header">
+                <h3 id="alertTitle">Message</h3>
+                <button type="button" class="close-modal" onclick="closeAlertModal()" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="alert-modal-body">
+                <p id="alertMessage"></p>
+            </div>
+            <div class="alert-modal-footer">
+                <button type="button" class="modal-btn" onclick="closeAlertModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button type="button" class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
     <!-- Scripts -->
     <script src="js/data.js"></script>
     <script src="js/app.js"></script>

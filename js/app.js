@@ -3,10 +3,49 @@ let cart = [];
 let currentStep = 'food';
 const TAX_RATE = 0.085; // 8.5% tax
 
+// Alert Modal Functions
+function showAlertModal(message, title = 'Message') {
+    const modal = document.getElementById('alertModal');
+    const messageEl = document.getElementById('alertMessage');
+    const titleEl = document.getElementById('alertTitle');
+    
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    
+    modal.classList.add('active');
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    modal.classList.remove('active');
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
+    initializeBackToTop();
 });
+
+// Back to Top functionality
+function initializeBackToTop() {
+    const backToTopButton = document.getElementById('backToTop');
+    const contentArea = document.querySelector('.content-area');
+
+    contentArea.addEventListener('scroll', () => {
+        if (contentArea.scrollTop > 300) {
+            backToTopButton.classList.add('visible');
+        } else {
+            backToTopButton.classList.remove('visible');
+        }
+    });
+
+    backToTopButton.addEventListener('click', () => {
+        contentArea.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
 
 function initializeApp() {
     setupEventListeners();
@@ -301,7 +340,7 @@ function canNavigateToStep(step) {
     // Add validation logic here if needed
     // For example, require items in cart before proceeding to review
     if (step === 'review' && cart.length === 0) {
-        alert('Please add some items to your cart before proceeding.');
+        showAlertModal('Please add some items to your cart before proceeding.', 'Cart Empty');
         return false;
     }
     return true;
@@ -355,7 +394,7 @@ function togglePaymentForm(method) {
 
 function completeOrder() {
     if (cart.length === 0) {
-        alert('Your cart is empty. Please add some items before completing your order.');
+        showAlertModal('Your cart is empty. Please add some items before completing your order.', 'Cart Empty');
         return;
     }
     
@@ -368,7 +407,7 @@ function completeOrder() {
         const name = document.querySelector('input[placeholder="John Doe"]').value;
         
         if (!cardNumber || !expiry || !cvv || !name) {
-            alert('Please fill in all payment details.');
+            showAlertModal('Please fill in all payment details.', 'Missing Information');
             return;
         }
     }
@@ -381,12 +420,12 @@ function completeOrder() {
     // Show order confirmation
     const orderNumber = Math.floor(Math.random() * 10000) + 1000;
     
-    alert(`Order Completed Successfully!
+    showAlertModal(`Order Completed Successfully!
     
 Order Number: #${orderNumber}
 Total Amount: $${totalAmount.toFixed(2)}
     
-Thank you for your order! Please wait for your order to be prepared.`);
+Thank you for your order! Please wait for your order to be prepared.`, 'Order Success');
     
     // Reset the system
     cart = [];
