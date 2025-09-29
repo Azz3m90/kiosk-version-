@@ -62,11 +62,44 @@
         <!-- Food Section -->
         <div class="section active" id="food-section">
             <h2 class="section-title">Choose Your Food</h2>
-            <div class="categories">
-                <button class="category-btn active" data-category="all">All Items</button>
-                <button class="category-btn" data-category="appetizers">Appetizers</button>
-                <button class="category-btn" data-category="mains">Main Courses</button>
-                <button class="category-btn" data-category="desserts">Desserts</button>
+            
+            <!-- Enhanced Filters -->
+            <div class="filters-container">
+                <div class="categories">
+                    <button class="category-btn active" data-category="all">All Items</button>
+                    <button class="category-btn" data-category="appetizers">Appetizers</button>
+                    <button class="category-btn" data-category="mains">Main Courses</button>
+                    <button class="category-btn" data-category="desserts">Desserts</button>
+                </div>
+                
+                <div class="price-filters">
+                    <div class="price-range-container">
+                        <label class="filter-label">Price Range</label>
+                        <div class="price-range-inputs">
+                            <input type="range" id="food-price-min" class="price-range-slider" min="0" max="30" value="0" data-type="food">
+                            <input type="range" id="food-price-max" class="price-range-slider" min="0" max="30" value="30" data-type="food">
+                        </div>
+                        <div class="price-range-display">
+                            $<span id="food-price-min-value">0</span> - $<span id="food-price-max-value">30</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-price-filters">
+                        <button class="price-filter-btn active" data-range="all" data-type="food">All Prices</button>
+                        <button class="price-filter-btn" data-range="budget" data-type="food">Under $15</button>
+                        <button class="price-filter-btn" data-range="mid" data-type="food">$15 - $20</button>
+                        <button class="price-filter-btn" data-range="premium" data-type="food">$20+</button>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="clear-filters-btn" data-type="food">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                    <div class="results-count">
+                        <span id="food-results-count">0</span> items found
+                    </div>
+                </div>
             </div>
             <div class="menu-grid" id="food-grid">
                 <!-- Food items will be populated here -->
@@ -81,11 +114,44 @@
         <!-- Drinks Section -->
         <div class="section" id="drinks-section">
             <h2 class="section-title">Choose Your Drinks</h2>
-            <div class="categories">
-                <button class="category-btn active" data-category="all">All Drinks</button>
-                <button class="category-btn" data-category="hot">Hot Drinks</button>
-                <button class="category-btn" data-category="cold">Cold Drinks</button>
-                <button class="category-btn" data-category="alcoholic">Alcoholic</button>
+            
+            <!-- Enhanced Filters -->
+            <div class="filters-container">
+                <div class="categories">
+                    <button class="category-btn active" data-category="all">All Drinks</button>
+                    <button class="category-btn" data-category="hot">Hot Drinks</button>
+                    <button class="category-btn" data-category="cold">Cold Drinks</button>
+                    <button class="category-btn" data-category="alcoholic">Alcoholic</button>
+                </div>
+                
+                <div class="price-filters">
+                    <div class="price-range-container">
+                        <label class="filter-label">Price Range</label>
+                        <div class="price-range-inputs">
+                            <input type="range" id="drinks-price-min" class="price-range-slider" min="0" max="15" value="0" data-type="drinks">
+                            <input type="range" id="drinks-price-max" class="price-range-slider" min="0" max="15" value="15" data-type="drinks">
+                        </div>
+                        <div class="price-range-display">
+                            $<span id="drinks-price-min-value">0</span> - $<span id="drinks-price-max-value">15</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-price-filters">
+                        <button class="price-filter-btn active" data-range="all" data-type="drinks">All Prices</button>
+                        <button class="price-filter-btn" data-range="budget" data-type="drinks">Under $5</button>
+                        <button class="price-filter-btn" data-range="mid" data-type="drinks">$5 - $8</button>
+                        <button class="price-filter-btn" data-range="premium" data-type="drinks">$8+</button>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="clear-filters-btn" data-type="drinks">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                    <div class="results-count">
+                        <span id="drinks-results-count">0</span> items found
+                    </div>
+                </div>
             </div>
             <div class="menu-grid" id="drinks-grid">
                 <!-- Drink items will be populated here -->

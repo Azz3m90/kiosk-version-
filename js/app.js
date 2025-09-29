@@ -3,6 +3,177 @@ let cart = [];
 let currentStep = 'food';
 const TAX_RATE = 0.085; // 8.5% tax
 
+// Enhanced Filtering System
+class FilterManager {
+    constructor() {
+        this.filters = {
+            food: {
+                category: 'all',
+                priceMin: 0,
+                priceMax: 30,
+                priceRange: 'all'
+            },
+            drinks: {
+                category: 'all',
+                priceMin: 0,
+                priceMax: 15,
+                priceRange: 'all'
+            }
+        };
+        
+        // Debounce timer for price range inputs
+        this.debounceTimer = null;
+        this.debounceDelay = 300;
+        
+        // Cache for filtered results to improve performance
+        this.cachedResults = new Map();
+    }
+    
+    // Debounced filter function for smooth UX
+    debounceFilter(type, callback) {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+            callback();
+            this.updateURL();
+        }, this.debounceDelay);
+    }
+    
+    // Update browser URL to maintain filter state (best practice)
+    updateURL() {
+        const params = new URLSearchParams();
+        Object.keys(this.filters).forEach(type => {
+            const filter = this.filters[type];
+            if (filter.category !== 'all') params.set(`${type}Category`, filter.category);
+            if (filter.priceMin > 0 || filter.priceMax < (type === 'food' ? 30 : 15)) {
+                params.set(`${type}PriceMin`, filter.priceMin);
+                params.set(`${type}PriceMax`, filter.priceMax);
+            }
+            if (filter.priceRange !== 'all') params.set(`${type}PriceRange`, filter.priceRange);
+        });
+        
+        const newUrl = params.toString() ? `${location.pathname}?${params.toString()}` : location.pathname;
+        history.replaceState(null, '', newUrl);
+    }
+    
+    // Load filters from URL on page load
+    loadFiltersFromURL() {
+        const params = new URLSearchParams(location.search);
+        
+        ['food', 'drinks'].forEach(type => {
+            const categoryParam = params.get(`${type}Category`);
+            const priceMinParam = params.get(`${type}PriceMin`);
+            const priceMaxParam = params.get(`${type}PriceMax`);
+            const priceRangeParam = params.get(`${type}PriceRange`);
+            
+            if (categoryParam) this.filters[type].category = categoryParam;
+            if (priceMinParam) this.filters[type].priceMin = parseFloat(priceMinParam);
+            if (priceMaxParam) this.filters[type].priceMax = parseFloat(priceMaxParam);
+            if (priceRangeParam) this.filters[type].priceRange = priceRangeParam;
+        });
+    }
+    
+    // Apply all filters to items with caching
+    filterItems(items, type) {
+        const filter = this.filters[type];
+        const cacheKey = JSON.stringify(filter);
+        
+        if (this.cachedResults.has(cacheKey)) {
+            return this.cachedResults.get(cacheKey);
+        }
+        
+        let filteredItems = [...items];
+        
+        // Category filter
+        if (filter.category !== 'all') {
+            filteredItems = filteredItems.filter(item => item.category === filter.category);
+        }
+        
+        // Price range filter
+        filteredItems = filteredItems.filter(item => 
+            item.price >= filter.priceMin && item.price <= filter.priceMax
+        );
+        
+        // Cache the result
+        this.cachedResults.set(cacheKey, filteredItems);
+        
+        // Clear cache if it gets too large (memory management)
+        if (this.cachedResults.size > 50) {
+            const firstKey = this.cachedResults.keys().next().value;
+            this.cachedResults.delete(firstKey);
+        }
+        
+        return filteredItems;
+    }
+    
+    // Reset filters for a specific type
+    resetFilters(type) {
+        const defaults = type === 'food' 
+            ? { category: 'all', priceMin: 0, priceMax: 30, priceRange: 'all' }
+            : { category: 'all', priceMin: 0, priceMax: 15, priceRange: 'all' };
+        
+        this.filters[type] = { ...defaults };
+        this.cachedResults.clear(); // Clear cache when filters reset
+        this.updateFilterUI(type);
+        this.updateURL();
+    }
+    
+    // Update UI elements to reflect current filter state
+    updateFilterUI(type) {
+        const filter = this.filters[type];
+        
+        // Update category buttons
+        document.querySelectorAll(`#${type}-section .category-btn`).forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.category === filter.category);
+        });
+        
+        // Update price range sliders
+        const minSlider = document.getElementById(`${type}-price-min`);
+        const maxSlider = document.getElementById(`${type}-price-max`);
+        const minDisplay = document.getElementById(`${type}-price-min-value`);
+        const maxDisplay = document.getElementById(`${type}-price-max-value`);
+        
+        if (minSlider) minSlider.value = filter.priceMin;
+        if (maxSlider) maxSlider.value = filter.priceMax;
+        if (minDisplay) minDisplay.textContent = filter.priceMin.toFixed(0);
+        if (maxDisplay) maxDisplay.textContent = filter.priceMax.toFixed(0);
+        
+        // Update quick price filter buttons
+        document.querySelectorAll(`[data-type="${type}"].price-filter-btn`).forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.range === filter.priceRange);
+        });
+    }
+    
+    // Set quick price range
+    setQuickPriceRange(type, range) {
+        const maxPrice = type === 'food' ? 30 : 15;
+        
+        switch (range) {
+            case 'all':
+                this.filters[type].priceMin = 0;
+                this.filters[type].priceMax = maxPrice;
+                break;
+            case 'budget':
+                this.filters[type].priceMin = 0;
+                this.filters[type].priceMax = type === 'food' ? 15 : 5;
+                break;
+            case 'mid':
+                this.filters[type].priceMin = type === 'food' ? 15 : 5;
+                this.filters[type].priceMax = type === 'food' ? 20 : 8;
+                break;
+            case 'premium':
+                this.filters[type].priceMin = type === 'food' ? 20 : 8;
+                this.filters[type].priceMax = maxPrice;
+                break;
+        }
+        
+        this.filters[type].priceRange = range;
+        this.cachedResults.clear();
+    }
+}
+
+// Initialize filter manager
+const filterManager = new FilterManager();
+
 // Alert Modal Functions
 function showAlertModal(message, title = 'Message') {
     const modal = document.getElementById('alertModal');
@@ -48,11 +219,17 @@ function initializeBackToTop() {
 }
 
 function initializeApp() {
+    filterManager.loadFiltersFromURL();
     setupEventListeners();
+    setupFilterEventListeners();
     renderFoodItems();
     renderDrinkItems();
     updateCartDisplay();
     updateStepNavigation();
+    
+    // Update UI to reflect loaded filters
+    filterManager.updateFilterUI('food');
+    filterManager.updateFilterUI('drinks');
 }
 
 function setupEventListeners() {
@@ -61,17 +238,28 @@ function setupEventListeners() {
         btn.addEventListener('click', function() {
             const section = this.closest('.section');
             const category = this.dataset.category;
+            const type = section.id === 'food-section' ? 'food' : 'drinks';
+            
+            // Update filter state
+            filterManager.filters[type].category = category;
+            filterManager.filters[type].priceRange = 'all'; // Reset price range when changing category
+            filterManager.cachedResults.clear();
             
             // Update active category button
             section.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             
+            // Reset and update price filter buttons
+            filterManager.updateFilterUI(type);
+            
             // Filter items
             if (section.id === 'food-section') {
-                renderFoodItems(category);
+                renderFoodItems();
             } else {
-                renderDrinkItems(category);
+                renderDrinkItems();
             }
+            
+            filterManager.updateURL();
         });
     });
 
@@ -119,26 +307,134 @@ function setupEventListeners() {
     }
 }
 
-function renderFoodItems(category = 'all') {
-    const grid = document.getElementById('food-grid');
-    let items = restaurantData.foodItems;
+// Setup event listeners for enhanced filters
+function setupFilterEventListeners() {
+    // Price range sliders
+    document.querySelectorAll('.price-range-slider').forEach(slider => {
+        slider.addEventListener('input', function() {
+            const type = this.dataset.type;
+            const isMin = this.id.includes('min');
+            const value = parseFloat(this.value);
+            
+            if (isMin) {
+                filterManager.filters[type].priceMin = value;
+                document.getElementById(`${type}-price-min-value`).textContent = value.toFixed(0);
+            } else {
+                filterManager.filters[type].priceMax = value;
+                document.getElementById(`${type}-price-max-value`).textContent = value.toFixed(0);
+            }
+            
+            // Ensure min doesn't exceed max and vice versa
+            const minSlider = document.getElementById(`${type}-price-min`);
+            const maxSlider = document.getElementById(`${type}-price-max`);
+            
+            if (isMin && value > parseFloat(maxSlider.value)) {
+                maxSlider.value = value;
+                filterManager.filters[type].priceMax = value;
+                document.getElementById(`${type}-price-max-value`).textContent = value.toFixed(0);
+            } else if (!isMin && value < parseFloat(minSlider.value)) {
+                minSlider.value = value;
+                filterManager.filters[type].priceMin = value;
+                document.getElementById(`${type}-price-min-value`).textContent = value.toFixed(0);
+            }
+            
+            // Reset quick filter to 'custom' when manually adjusting
+            filterManager.filters[type].priceRange = 'custom';
+            document.querySelectorAll(`[data-type="${type}"].price-filter-btn`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Debounced filter application
+            filterManager.debounceFilter(type, () => {
+                if (type === 'food') {
+                    renderFoodItems();
+                } else {
+                    renderDrinkItems();
+                }
+            });
+        });
+    });
     
-    if (category !== 'all') {
-        items = items.filter(item => item.category === category);
-    }
+    // Quick price filter buttons
+    document.querySelectorAll('.price-filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.dataset.type;
+            const range = this.dataset.range;
+            
+            // Update active button
+            document.querySelectorAll(`[data-type="${type}"].price-filter-btn`).forEach(b => {
+                b.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Set price range
+            filterManager.setQuickPriceRange(type, range);
+            filterManager.updateFilterUI(type);
+            
+            // Apply filters
+            if (type === 'food') {
+                renderFoodItems();
+            } else {
+                renderDrinkItems();
+            }
+            
+            filterManager.updateURL();
+        });
+    });
     
-    grid.innerHTML = items.map(item => createMenuItemHTML(item)).join('');
+    // Clear filters buttons
+    document.querySelectorAll('.clear-filters-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.dataset.type;
+            filterManager.resetFilters(type);
+            
+            if (type === 'food') {
+                renderFoodItems();
+            } else {
+                renderDrinkItems();
+            }
+        });
+    });
 }
 
-function renderDrinkItems(category = 'all') {
-    const grid = document.getElementById('drinks-grid');
-    let items = restaurantData.drinkItems;
+function renderFoodItems() {
+    const grid = document.getElementById('food-grid');
+    const resultsCount = document.getElementById('food-results-count');
     
-    if (category !== 'all') {
-        items = items.filter(item => item.category === category);
+    // Apply filters using the filter manager
+    const filteredItems = filterManager.filterItems(restaurantData.foodItems, 'food');
+    
+    // Update results count
+    if (resultsCount) {
+        resultsCount.textContent = filteredItems.length;
     }
     
-    grid.innerHTML = items.map(item => createMenuItemHTML(item)).join('');
+    // Render items or show no results message
+    if (filteredItems.length === 0) {
+        grid.innerHTML = createNoResultsHTML('food');
+    } else {
+        grid.innerHTML = filteredItems.map(item => createMenuItemHTML(item)).join('');
+    }
+}
+
+function renderDrinkItems() {
+    const grid = document.getElementById('drinks-grid');
+    const resultsCount = document.getElementById('drinks-results-count');
+    
+    // Apply filters using the filter manager
+    const filteredItems = filterManager.filterItems(restaurantData.drinkItems, 'drinks');
+    
+    // Update results count
+    if (resultsCount) {
+        resultsCount.textContent = filteredItems.length;
+    }
+    
+    // Render items or show no results message
+    if (filteredItems.length === 0) {
+        grid.innerHTML = createNoResultsHTML('drinks');
+    } else {
+        grid.innerHTML = filteredItems.map(item => createMenuItemHTML(item)).join('');
+    }
 }
 
 function createMenuItemHTML(item) {
@@ -154,6 +450,26 @@ function createMenuItemHTML(item) {
                         <i class="fas fa-plus"></i> Add
                     </button>
                 </div>
+            </div>
+        </div>
+    `;
+}
+
+function createNoResultsHTML(type) {
+    const suggestions = type === 'food' 
+        ? ['Try selecting "All Items"', 'Increase your price range', 'Check other categories like Main Courses or Appetizers']
+        : ['Try selecting "All Drinks"', 'Increase your price range', 'Check other categories like Hot or Cold drinks'];
+    
+    return `
+        <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h3>No ${type === 'food' ? 'food items' : 'drinks'} found</h3>
+            <p>We couldn't find any items matching your current filters.</p>
+            <div class="no-results-suggestions">
+                <strong>Try:</strong>
+                <ul>
+                    ${suggestions.map(suggestion => `<li>• ${suggestion}</li>`).join('')}
+                </ul>
             </div>
         </div>
     `;
