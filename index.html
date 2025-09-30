@@ -58,6 +58,38 @@
         
         <!-- Content Area -->
         <div class="content-area">
+            <!-- Language Selector Header -->
+            <div class="kiosk-header">
+                <div class="header-title">
+                    <h1>Welcome to Our Restaurant</h1>
+                </div>
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="en" title="English">
+                        <span class="flag">🇬🇧</span>
+                        <span class="lang-text">English</span>
+                    </button>
+                    <button class="lang-btn" data-lang="fr" title="Français">
+                        <span class="flag">🇫🇷</span>
+                        <span class="lang-text">Français</span>
+                    </button>
+                    <button class="lang-btn" data-lang="nl" title="Nederlands">
+                        <span class="flag">🇳🇱</span>
+                        <span class="lang-text">Nederlands</span>
+                    </button>
+                    <button class="lang-btn" data-lang="de" title="Deutsch">
+                        <span class="flag">🇩🇪</span>
+                        <span class="lang-text">Deutsch</span>
+                    </button>
+                    <button class="lang-btn" data-lang="es" title="Español">
+                        <span class="flag">🇪🇸</span>
+                        <span class="lang-text">Español</span>
+                    </button>
+                    <button class="lang-btn" data-lang="it" title="Italiano">
+                        <span class="flag">🇮🇹</span>
+                        <span class="lang-text">Italiano</span>
+                    </button>
+                </div>
+            </div>
 
         <!-- Food Section -->
         <div class="section active" id="food-section">
@@ -293,6 +325,44 @@
             </div>
             <div class="alert-modal-footer">
                 <button type="button" class="modal-btn" onclick="closeAlertModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options Modal for Item Customization -->
+    <div class="options-modal" id="optionsModal">
+        <div class="options-modal-content">
+            <div class="options-modal-header">
+                <h3 id="modalItemName">Item Name</h3>
+                <button type="button" class="close-modal" onclick="closeOptionsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="options-modal-body">
+                <div class="quantity-selector">
+                    <label>Quantity:</label>
+                    <div class="quantity-controls">
+                        <button onclick="decreaseModalQuantity()">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span id="modalQuantity">1</span>
+                        <button onclick="increaseModalQuantity()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="modalOptionsBody">
+                    <!-- Options will be dynamically inserted here -->
+                </div>
+                <div class="modal-price-display">
+                    <strong>Total: $<span id="modalTotalPrice">0.00</span></strong>
+                </div>
+            </div>
+            <div class="options-modal-footer">
+                <button type="button" class="modal-btn cancel-btn" onclick="closeOptionsModal()">Cancel</button>
+                <button type="button" class="modal-btn add-btn" onclick="addFromModal()">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
             </div>
         </div>
     </div>
